@@ -1,0 +1,36 @@
+*.csv
+*.pkl
+*.h5
+*.pth
+*.bin
+*.zip
+data/
+models/
+checkpoints/
+# Python virtual environments
+.venv/
+venv/
+env/
+**/.venv/
+**/venv/
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Large model/data files
+*.pkl
+*.pt
+*.pth
+*.h5
+*.bin
+*.ckpt
+
+# Cloned dependencies (should be installed separately)
+pokemon-showdown/
+
+# IDE
+.vscode/
+.idea/

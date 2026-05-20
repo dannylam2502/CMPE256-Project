@@ -1,0 +1,9 @@
+[project]
+name = "battle-recommender-bot"
+version = "0.1.0"
+description = "poke-env bot that scores actions and streams to a Svelte UI"
+requires-python = ">=3.10"
+dependencies = [
+    "poke-env>=0.8.0",
+    "websockets>=12.0",
+]
