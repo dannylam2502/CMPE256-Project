@@ -6,7 +6,7 @@ top-scored action.
 
 ## Layout
 
-```
+````
 bot/
 ├── pyproject.toml
 ├── main.py             ← entry point (two bots, self-play)
@@ -14,13 +14,80 @@ bot/
 ├── serializer.py       ← poke-env Battle → UI's BattleUpdate JSON
 ├── bridge.py           ← WebSocket server on :8765
 └── player.py           ← RecommenderPlayer (poke-env subclass)
-```
+````
+
+## Setup
+
+This repo only contains the bot code. You need to install Pokémon Showdown, the
+Python environment, and download the training data separately before you can run
+anything.
+
+### 1. Clone Pokémon Showdown
+
+Pokémon Showdown is the battle server the bot connects to. Clone it as a sibling
+directory to this repo:
+
+````bash
+cd ~/PokemonProject
+git clone https://github.com/smogon/pokemon-showdown.git
+cd pokemon-showdown
+npm install
+cp config/config-example.js config/config.js
+````
+
+You'll need Node.js (v18+) installed. Verify with `node --version`.
+
+### 2. Set up the Python environment
+
+From the `bot/` directory:
+
+````bash
+cd ~/PokemonProject/bot
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+````
+
+Requires Python 3.12. If `pip install` pulls in PyTorch with CUDA and you don't
+have an NVIDIA GPU, install the CPU-only build instead:
+`pip install torch --index-url https://download.pytorch.org/whl/cpu`.
+
+### 3. Download the training data
+
+The `Gen3OUPickle.pkl` file (~1.1 GB) isn't tracked in git due to size. Download
+it from <ADD GOOGLE DRIVE / ONEDRIVE LINK HERE> and place it at:
+
+````
+bot/Gen3OUPickle.pkl
+````
+
+The bot will fail to load the recommender model if this file is missing.
+
+### 4. Set up the UI
+
+The Svelte UI lives in a separate repo. Clone it as a sibling of `bot/`:
+
+````bash
+cd ~/PokemonProject
+git clone <UI REPO URL> pokemon-recommender-ui
+cd pokemon-recommender-ui
+bun install
+````
+
+Your final directory layout should look like:
+
+````
+PokemonProject/
+├── bot/                        ← this repo
+├── pokemon-showdown/           ← cloned from smogon/pokemon-showdown
+└── pokemon-recommender-ui/     ← cloned separately
+````
 
 ## Run
 
 In **three separate terminals**:
 
-```bash
+````bash
 # Terminal 1 — Showdown
 cd ~/PokemonProject/pokemon-showdown
 node pokemon-showdown start --no-security
@@ -33,7 +100,7 @@ bun run dev
 cd ~/PokemonProject/bot
 source .venv/bin/activate
 python main.py
-```
+````
 
 Open the UI in your browser, click **PYTHON BOT** in the top right. You should
 see the connection indicator turn green and battle state stream in.
@@ -50,7 +117,7 @@ That's it. No other file needs to change.
 
 Example skeleton:
 
-```python
+````python
 class ReplayTrainedRecommender:
     name = "xgb-v1"
 
@@ -70,7 +137,7 @@ class ReplayTrainedRecommender:
             scored.append(ScoredAction(switch, p, f"pivot · P(win|switch)={p:.2f}"))
         scored.sort(key=lambda s: s.score, reverse=True)
         return scored
-```
+````
 
 ## Why two bots?
 
@@ -101,3 +168,21 @@ check the log and add a `getattr` guard for the missing field.
 **Bot freezes after the first turn** — the recommender returned an illegal
 action. Make sure `score()` only includes items from `battle.available_moves`
 and `battle.available_switches`.
+
+**`FileNotFoundError: Gen3OUPickle.pkl`** — you skipped step 3 of setup.
+Download the pickle and place it at `bot/Gen3OUPickle.pkl`.
+
+**`npm: command not found`** in the Showdown terminal — install Node.js from
+https://nodejs.org or via your package manager (`sudo apt install nodejs npm`
+on Pop!_OS).
+````
+````
+
+A few things I changed and you should fill in or verify:
+
+- The placeholder `<ADD GOOGLE DRIVE / ONEDRIVE LINK HERE>` in step 3 — drop in wherever you ended up hosting the pickle file.
+- The placeholder `<UI REPO URL>` in step 4 — I don't know if your UI is a separate repo or in the same monorepo. If it's part of the same repo, simplify that section.
+- I assumed `requirements.txt` exists in `bot/`. If you only have `pyproject.toml` (which the layout shows), change `pip install -r requirements.txt` to `pip install -e .` or `pip install .`.
+- Added two new troubleshooting entries for the most likely setup-time errors (missing pickle, missing npm).
+
+Want me to also generate the `requirements.txt` from your current `.venv` so collaborators get exact versions? You'd run `pip freeze > requirements.txt` from inside your activated venv.
