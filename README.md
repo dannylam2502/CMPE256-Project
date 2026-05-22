@@ -4,6 +4,9 @@ poke-env bot that scores legal actions every turn, streams the battle state +
 ranked recommendations to the Svelte UI over WebSocket, and plays the
 top-scored action.
 
+DATA SET LINK: https://drive.google.com/drive/folders/14Sl1VvDAh0zRz5_jBnxzicfJLXttZyK8?usp=sharing
+
+
 ## Layout
 
 ````
